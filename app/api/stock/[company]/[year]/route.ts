@@ -1,47 +1,58 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import path from 'path'
 import fs from 'fs'
 
+/** 保障在 Node.js 运行时（允许 fs），且不被静态化/缓存 */
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+// Next.js 15.5 期望的签名：params 是 Promise，需要 await
 export async function GET(
-  request: Request,
-  context: { params: { company: string; year: string } }
+  request: NextRequest,
+  context: { params: Promise<{ company: string; year: string }> }
 ) {
   try {
-    // 解码参数
-    const company = decodeURIComponent(context.params.company)
-    const year = parseInt(context.params.year)
+    const { company, year } = await context.params
+    const decodedCompany = decodeURIComponent(company)
+    const yearNum = Number.parseInt(year, 10)
 
-    // 构造 JSON 文件路径（每家公司一个 JSON 文件）
-    const filePath = path.join(process.cwd(), 'public', 'data', `${company}.json`)
-
-    // 判断文件是否存在
+    const filePath = path.join(process.cwd(), 'public', 'data', `${decodedCompany}.json`)
     if (!fs.existsSync(filePath)) {
-      return NextResponse.json({ error: '未找到公司数据文件' }, { status: 404 })
+      return NextResponse.json({ error: `未找到公司数据文件：${decodedCompany}` }, { status: 404 })
     }
 
-    // 读取 JSON 文件内容
     const raw = fs.readFileSync(filePath, 'utf-8')
-    const parsed = JSON.parse(raw)
-
-    // 查找指定年份的数据
-    const matched = parsed.years.find((item: any) => item.year === year)
-
-    if (!matched) {
-      return NextResponse.json({ error: '该年份无数据' }, { status: 404 })
+    const parsed = JSON.parse(raw) as {
+      company_name?: string
+      sector?: string
+      years: Array<{
+        year: number
+        open: number
+        close: number
+        primary_info?: string[]
+        advanced_info?: string[]
+      }>
     }
 
-    // 返回格式统一的数据对象
+    const matched = parsed.years.find((y) => y.year === yearNum)
+    if (!matched) {
+      return NextResponse.json({ error: `该年份无数据：${yearNum}` }, { status: 404 })
+    }
+
+    // 统一返回前端需要的字段命名
     return NextResponse.json({
-      company: parsed.company_name || company,
-      industry: parsed.sector || '未知行业',               // 使用 sector 映射到前端的 industry
+      company: parsed.company_name ?? decodedCompany,
+      industry: parsed.sector ?? '未知行业',
       year: matched.year,
       open: matched.open,
       close: matched.close,
-      basicInfo: matched.primary_info || [],              // 保底空数组防止前端报错
-      advancedInfo: matched.advanced_info || []
+      basicInfo: matched.primary_info ?? [],
+      advancedInfo: matched.advanced_info ?? [],
     })
-  } catch (err) {
-    console.error('Error in API:', err)
-    return NextResponse.json({ error: '服务器内部错误' }, { status: 500 })
+  } catch (err: any) {
+    console.error('API 错误:', err)
+    return NextResponse.json({ error: '服务器内部错误', detail: String(err?.message ?? err) }, { status: 500 })
   }
 }
