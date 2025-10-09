@@ -16,7 +16,7 @@ type ErrorResponse = {
 
 type StockAPIResponse = StockRecord | ErrorResponse
 
-// 这里行业名称用来显示按钮，实际请求仍然用公司名（必须与JSON文件名一致）
+// 行业映射表：按钮显示行业名，请求时使用公司名
 const companyMap: Record<string, string> = {
   '宁德时代': '电池企业',
   '比亚迪': '汽车公司',
@@ -38,6 +38,7 @@ export default function Home() {
   const [data, setData] = useState<StockAPIResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [viewType, setViewType] = useState<'basic' | 'advanced' | null>(null)
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
 
   const fetchData = async (company: string, year: number) => {
     setLoading(true)
@@ -52,7 +53,7 @@ export default function Home() {
     <main className="flex flex-col items-center justify-start min-h-screen p-8 bg-gray-100 text-black">
       <h1 className="text-3xl font-bold mb-6">📊 模拟股票行业信息查询</h1>
 
-      {/* 行业按钮（按钮上显示行业名） */}
+      {/* 行业按钮 */}
       <div className="flex flex-wrap gap-3 mb-4">
         {Object.entries(companyMap).map(([company, industry]) => (
           <button
@@ -62,6 +63,7 @@ export default function Home() {
               setSelectedYear(null)
               setData(null)
               setViewType(null)
+              setExpandedIndex(null)
             }}
             className={`px-4 py-2 rounded ${
               selectedCompany === company
@@ -86,6 +88,7 @@ export default function Home() {
                   setSelectedYear(year)
                   fetchData(selectedCompany, year)
                   setViewType(null)
+                  setExpandedIndex(null)
                 }}
                 className={`px-4 py-1 rounded ${
                   selectedYear === year
@@ -111,15 +114,17 @@ export default function Home() {
       {/* 数据展示 */}
       {!loading && data && 'company' in data && (
         <div className="bg-white p-6 rounded shadow w-full max-w-2xl mt-4">
-          {/* 不显示公司名，只显示行业 */}
           <h2 className="text-xl font-bold mb-2">
             {data.industry} - {data.year}
           </h2>
 
-          {/* 选择查看内容 */}
+          {/* 主按钮：选择查看类型 */}
           <div className="flex gap-3 mt-4">
             <button
-              onClick={() => setViewType('basic')}
+              onClick={() => {
+                setViewType('basic')
+                setExpandedIndex(null)
+              }}
               className={`px-3 py-1 rounded ${
                 viewType === 'basic'
                   ? 'bg-purple-700 text-white'
@@ -129,7 +134,10 @@ export default function Home() {
               查看初级信息
             </button>
             <button
-              onClick={() => setViewType('advanced')}
+              onClick={() => {
+                setViewType('advanced')
+                setExpandedIndex(null)
+              }}
               className={`px-3 py-1 rounded ${
                 viewType === 'advanced'
                   ? 'bg-orange-700 text-white'
@@ -140,26 +148,47 @@ export default function Home() {
             </button>
           </div>
 
-          {/* 显示内容 */}
+          {/* 初级信息显示 */}
           {viewType === 'basic' && (
             <div className="mt-4">
               <h3 className="font-semibold mb-2">初级信息：</h3>
-              <ul className="list-disc pl-5 space-y-1">
-                {data.basicInfo.map((info, i) => (
-                  <li key={i}>{info}</li>
-                ))}
-              </ul>
+              {data.basicInfo.map((info, i) => (
+                <div key={i} className="border rounded mb-2 p-3 bg-gray-50">
+                  <button
+                    onClick={() =>
+                      setExpandedIndex(expandedIndex === i ? null : i)
+                    }
+                    className="w-full text-left font-medium text-blue-700"
+                  >
+                    初级信息 {i + 1} {expandedIndex === i ? '▲' : '▼'}
+                  </button>
+                  {expandedIndex === i && (
+                    <p className="mt-2 text-gray-800">{info}</p>
+                  )}
+                </div>
+              ))}
             </div>
           )}
 
+          {/* 高级信息显示 */}
           {viewType === 'advanced' && (
             <div className="mt-4">
               <h3 className="font-semibold mb-2">高级信息：</h3>
-              <ul className="list-disc pl-5 space-y-1">
-                {data.advancedInfo.map((info, i) => (
-                  <li key={i}>{info}</li>
-                ))}
-              </ul>
+              {data.advancedInfo.map((info, i) => (
+                <div key={i} className="border rounded mb-2 p-3 bg-gray-50">
+                  <button
+                    onClick={() =>
+                      setExpandedIndex(expandedIndex === i ? null : i)
+                    }
+                    className="w-full text-left font-medium text-blue-700"
+                  >
+                    高级信息 {i + 1} {expandedIndex === i ? '▲' : '▼'}
+                  </button>
+                  {expandedIndex === i && (
+                    <p className="mt-2 text-gray-800">{info}</p>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
