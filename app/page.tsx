@@ -16,7 +16,20 @@ type ErrorResponse = {
 
 type StockAPIResponse = StockRecord | ErrorResponse
 
-const companies = ['宁德时代', '比亚迪', '腾讯控股', '恒瑞医药', '美的集团', '海康威视', '万华化学', '中信证券', '牧原股份', '阿里巴巴']
+// 这里行业名称用来显示按钮，实际请求仍然用公司名（必须与JSON文件名一致）
+const companyMap: Record<string, string> = {
+  '宁德时代': '电池企业',
+  '比亚迪': '汽车公司',
+  '腾讯控股': '互联网公司',
+  '恒瑞医药': '医药公司',
+  '美的集团': '家电制造企业',
+  '海康威视': '安防科技公司',
+  '万华化学': '化工材料企业',
+  '中信证券': '证券公司',
+  '牧原股份': '养殖企业',
+  '阿里巴巴': '电商企业',
+}
+
 const years = [2020, 2021, 2022, 2023, 2024]
 
 export default function Home() {
@@ -37,29 +50,31 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center justify-start min-h-screen p-8 bg-gray-100 text-black">
-      <h1 className="text-3xl font-bold mb-6">📊 模拟股票信息查询</h1>
+      <h1 className="text-3xl font-bold mb-6">📊 模拟股票行业信息查询</h1>
 
-      {/* 公司选择按钮 */}
+      {/* 行业按钮（按钮上显示行业名） */}
       <div className="flex flex-wrap gap-3 mb-4">
-        {companies.map((name) => (
+        {Object.entries(companyMap).map(([company, industry]) => (
           <button
-            key={name}
+            key={company}
             onClick={() => {
-              setSelectedCompany(name)
+              setSelectedCompany(company)
               setSelectedYear(null)
               setData(null)
               setViewType(null)
             }}
             className={`px-4 py-2 rounded ${
-              selectedCompany === name ? 'bg-blue-800 text-white' : 'bg-blue-500 text-white hover:bg-blue-600'
+              selectedCompany === company
+                ? 'bg-blue-800 text-white'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
             }`}
           >
-            {name}
+            {industry}
           </button>
         ))}
       </div>
 
-      {/* 年份选择器 */}
+      {/* 年份选择 */}
       {selectedCompany && (
         <div className="mb-6">
           <h2 className="text-lg mb-2">选择年份：</h2>
@@ -73,7 +88,9 @@ export default function Home() {
                   setViewType(null)
                 }}
                 className={`px-4 py-1 rounded ${
-                  selectedYear === year ? 'bg-green-700 text-white' : 'bg-green-500 text-white hover:bg-green-600'
+                  selectedYear === year
+                    ? 'bg-green-700 text-white'
+                    : 'bg-green-500 text-white hover:bg-green-600'
                 }`}
               >
                 {year}
@@ -83,29 +100,30 @@ export default function Home() {
         </div>
       )}
 
-      {/* 加载中提示 */}
+      {/* 加载状态 */}
       {loading && <p className="text-gray-700">加载中...</p>}
 
-      {/* 错误提示 */}
-      {!loading && data && 'error' in data && <p className="text-red-600 mt-4">❌ 查询失败：{data.error}</p>}
+      {/* 错误信息 */}
+      {!loading && data && 'error' in data && (
+        <p className="text-red-600 mt-4">❌ 查询失败：{data.error}</p>
+      )}
 
       {/* 数据展示 */}
       {!loading && data && 'company' in data && (
         <div className="bg-white p-6 rounded shadow w-full max-w-2xl mt-4">
+          {/* 不显示公司名，只显示行业 */}
           <h2 className="text-xl font-bold mb-2">
-            {data.company} - {data.year}
+            {data.industry} - {data.year}
           </h2>
-          <p>
-            <strong>行业：</strong>
-            {data.industry}
-          </p>
 
-          {/* 选择显示类型按钮 */}
+          {/* 选择查看内容 */}
           <div className="flex gap-3 mt-4">
             <button
               onClick={() => setViewType('basic')}
               className={`px-3 py-1 rounded ${
-                viewType === 'basic' ? 'bg-purple-700 text-white' : 'bg-purple-500 text-white hover:bg-purple-600'
+                viewType === 'basic'
+                  ? 'bg-purple-700 text-white'
+                  : 'bg-purple-500 text-white hover:bg-purple-600'
               }`}
             >
               查看初级信息
@@ -113,14 +131,16 @@ export default function Home() {
             <button
               onClick={() => setViewType('advanced')}
               className={`px-3 py-1 rounded ${
-                viewType === 'advanced' ? 'bg-orange-700 text-white' : 'bg-orange-500 text-white hover:bg-orange-600'
+                viewType === 'advanced'
+                  ? 'bg-orange-700 text-white'
+                  : 'bg-orange-500 text-white hover:bg-orange-600'
               }`}
             >
               查看高级信息
             </button>
           </div>
 
-          {/* 根据按钮显示不同内容 */}
+          {/* 显示内容 */}
           {viewType === 'basic' && (
             <div className="mt-4">
               <h3 className="font-semibold mb-2">初级信息：</h3>
