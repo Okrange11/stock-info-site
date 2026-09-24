@@ -1,36 +1,21 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 模拟股票行业信息查询
 
-## Getting Started
+工作人员依次选择行业、年份、信息级别，再点击某条信息展开；再次点击可收起。切换行业、年份或级别会收起原信息。
 
-First, run the development server:
+## 本地运行
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+使用 Node.js 22，执行 `npm ci`，然后 `npm run dev`，打开 http://localhost:3000。
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 发布
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+当前只保存源码，暂不部署。`vercel.json` 已设置 `git.deploymentEnabled: false`，阻止此版本通过 Git 推送触发 Vercel 自动部署。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+准备正式上线时，先执行 `npm run build` 验证，再按发布计划移除该禁用配置或改为 `true`，合并到生产分支。在 Vercel 确认部署成功后使用项目的正式域名。
 
-## Learn More
+## 数据维护
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `data/stocks.json`：来源于本次提供的《金融业(1).docx》，包含 10 个行业、2021–2025 年，共 50 组、200 条信息。原文线索完整保留，不包含开盘价或收盘价。
+- `data/catalog.json`：行业按钮及可选年份。增加行业或年份时，与信息文件同步更新。
+- 数据通过服务端接口按行业、年份查询。旧的 `public/data` 文件已删除。
+- 这是工作人员操作页面，没有登录权限控制；知道网址的人仍可以查询线索。请由工作人员保管使用链接。
+- 页面内容为社团活动模拟资料。

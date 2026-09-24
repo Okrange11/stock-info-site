@@ -1,26 +1,37 @@
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f3f4f6; color: #111; font-family: Arial, "Microsoft YaHei", sans-serif; }
+button { font: inherit; cursor: pointer; border: 0; border-radius: 5px; }
+button:focus-visible { outline: 3px solid #111; outline-offset: 4px; }
+.query-page { min-height: 100vh; padding: 32px 24px 48px; }
+h1 { margin: 0 0 34px; text-align: center; font-size: 32px; font-weight: 700; }
+.industry-list, .year-list, .level-list { display: flex; flex-wrap: wrap; gap: 14px; }
+.industry-list { justify-content: center; }
+.industry-button { background: #4178ff; color: white; padding: 14px 18px; font-size: 18px; }
+.industry-button:hover { background: #3464df; }
+.industry-button[aria-pressed="true"] { background: #293bb7; }
+.year-picker { width: fit-content; max-width: 100%; margin: 24px auto 0; }
+.year-picker h2 { font-size: 20px; margin: 0 0 14px; font-weight: 400; }
+.year-button { color: white; background: #46c55b; font-size: 20px; padding: 8px 20px; }
+.year-button:hover, .year-button[aria-pressed="true"] { background: #2e813d; }
+.query-status { text-align: center; min-height: 24px; margin: 12px 0; color: #4b5563; }
+.error { text-align: center; color: #b91c1c; }
+.info-card { background: white; max-width: 800px; margin: 0 auto; padding: 28px; border-radius: 6px; box-shadow: 0 2px 4px #0002; }
+.info-card h2 { font-size: 24px; font-weight: 700; margin: 0 0 22px; }
+.level-list button { color: white; padding: 9px 14px; font-size: 18px; }
+.basic-button { background: #8010d8; }
+.basic-button:hover, .basic-button[aria-pressed="true"] { background: #6b0abb; }
+.advanced-button { background: #fa7908; }
+.advanced-button:hover, .advanced-button[aria-pressed="true"] { background: #d96000; }
+.clues h3 { font-size: 19px; font-weight: 700; margin: 20px 0 12px; }
+.clue { margin-bottom: 10px; border: 1px solid #333; border-radius: 4px; background: #f9fafb; overflow: hidden; }
+.clue button { display: block; width: 100%; text-align: left; padding: 16px; background: transparent; color: #294ef4; font-weight: 600; font-size: 18px; }
+.clue p { margin: 0; padding: 0 16px 16px; color: #273341; line-height: 1.75; font-size: 18px; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+.query-page { padding: 24px 16px; } h1 { font-size: 24px; margin-bottom: 24px; }
+.industry-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.industry-button { padding: 12px 6px; font-size: 16px; } .year-list { gap: 8px; }
+.year-button { padding: 9px 12px; font-size: 17px; } .info-card { padding: 20px 16px; }
+.info-card h2 { font-size: 21px; } .level-list { gap: 10px; } .level-list button { font-size: 16px; }
 }
