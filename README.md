@@ -8,9 +8,7 @@
 
 ## 发布
 
-当前只保存源码，暂不部署。`vercel.json` 已设置 `git.deploymentEnabled: false`，阻止此版本通过 Git 推送触发 Vercel 自动部署。
-
-准备正式上线时，先执行 `npm run build` 验证，再按发布计划移除该禁用配置或改为 `true`，合并到生产分支。在 Vercel 确认部署成功后使用项目的正式域名。
+先执行 `npm run build` 验证，再合并到生产分支 `main`。`vercel.json` 已开启 `main` 的 Git 自动部署，更新分支 `update-2026-stock-info` 仍关闭自动部署。在 Vercel 确认部署成功后使用项目的正式域名。
 
 ## 数据维护
 
